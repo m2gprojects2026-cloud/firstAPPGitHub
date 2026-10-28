@@ -1,14 +1,36 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import streamlit as st
 
-engine = create_engine(
-    st.secrets["DATABASE_URL"]
-)
+try:
 
-with engine.connect() as conn:
+    url = st.secrets["DATABASE_URL"]
 
-    result = conn.execute(
-        text("SELECT NOW()")
+    st.write("URL encontrada ✅")
+
+    # Oculta la contraseña
+    st.write(
+        url.replace(
+            url.split(":")[2].split("@")[0],
+            "*****"
+        )
     )
 
-    print(result.fetchone())
+    engine = create_engine(url)
+
+    with engine.connect() as conn:
+
+        resultado = conn.execute(
+            text("SELECT NOW()")
+        )
+
+        st.success("✅ Conexión exitosa")
+
+        st.write(resultado.fetchone())
+
+except Exception as e:
+
+    st.error(f"❌ Error: {e}")
+
+    import traceback
+
+    st.code(traceback.format_exc())
