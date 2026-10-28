@@ -1,13 +1,14 @@
+from sqlalchemy import create_engine
 import streamlit as st
-import google.generativeai as genai
-genai.configure(
-    api_key=st.secrets["GEMINI_API_KEY"]
+
+engine = create_engine(
+    st.secrets["DATABASE_URL"]
 )
-model = genai.GenerativeModel(
-    "gemini-2.5-flash"
-)
-if st.button("Probar"):
-    r = model.generate_content(
-        "Dime qué es un cambio de aceite."
+
+with engine.connect() as conn:
+
+    result = conn.execute(
+        text("SELECT NOW()")
     )
-    st.write(r.text)
+
+    print(result.fetchone())
